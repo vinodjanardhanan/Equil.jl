@@ -6,17 +6,37 @@ using RxnHelperUtils, IdealGas
 
 include("Constants.jl")
 
-export equil, equilibrate
+export equilibrate
 
 """
 This function calculates equilibrium composition based on initial conditions
     read from an input filter
 #   Usage
-    equil(input_file::AbstractString, lib_dir::AbstractString)
+    equilibrate(input_file::AbstractString, lib_dir::AbstractString)
 -   input_file ; input xml file, which specifies T, p, species list, molefracs
 -   lib_dir : the folder in which therm.dat file exists
+
+Alternatively the same be calculated based on user input, wherein the species composition is
+passed as a Dictionary
+#   Usage
+    equilibrate(T::Float64, p::Float64, species_comp::Dict{String, Float64}, thermo_obj)
+-   T : Temperature in K 
+-   p : Pressure in Pa 
+-   thermo_obj : Thermodynamic object created using IdealGas.create_thermo 
+-   species_comp : Dictionary of species composition {String, Float64}
+
+Alternatively the same be calculated based on user input where in the species list and molefractions are
+passed in as separate arrays 
+#   Usage
+    equilibrate(T, p, thermo_obj, mole_fracs, gasphase)
+-   T : Temperature in K 
+-   p : Pressure in Pa 
+-   thermo_obj : Thermodynamic object created using IdealGas.create_thermo 
+-   mole_fracs : species mole fractions 
+-   gasphase : list of gasphase species 
+
 """
-function equil(input_file::AbstractString, lib_dir::AbstractString)
+function equilibrate(input_file::AbstractString, lib_dir::AbstractString)
     #lib directory    
     xmldoc = parse_file(input_file)
     xmlroot = root(xmldoc)
@@ -52,7 +72,7 @@ function equil(input_file::AbstractString, lib_dir::AbstractString)
     
 end
 
-"""
+#=
 This function calculates equilibrium compostion from user input
 #   Usage
     equilibrate(T::Float64, p::Float64, species_comp::Dict{String, Float64}, thermo_obj)
@@ -60,7 +80,7 @@ This function calculates equilibrium compostion from user input
 -   p : Pressure in Pa 
 -   thermo_obj : Thermodynamic object created using IdealGas.create_thermo 
 -   species_comp : Dictionary of species composition {String, Float64}
-"""
+=#
 function equilibrate(T::Float64, p::Float64, thermo_obj, species_comp::Dict{String, Float64})
     gasphase = collect(keys(species_comp))
     molefracs = collect(values(species_comp))
@@ -68,7 +88,7 @@ function equilibrate(T::Float64, p::Float64, thermo_obj, species_comp::Dict{Stri
     
 end
 
-"""
+#=
 This function calculates equilibrium compostion from user input
 #   Usage
     equilibrate(T, p, thermo_obj, mole_fracs, gasphase)
@@ -77,7 +97,7 @@ This function calculates equilibrium compostion from user input
 -   thermo_obj : Thermodynamic object created using IdealGas.create_thermo 
 -   mole_fracs : species mole fractions 
 -   gasphase : list of gasphase species 
-"""
+=#
 function equilibrate(T, p, thermo_obj, mole_fracs, gasphase)
     all_species_thermo = thermo_obj.thermo_all
     #Total number of moles under the given conditions

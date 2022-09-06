@@ -24,6 +24,7 @@ Modules = [Equil]
 ```
 
 ## Executing the code
+In order to calculate the equilibrium composition based on input file, do the following.
 On the Julia REPL 
 ```julia
 julia>using Equil
@@ -91,8 +92,7 @@ julia>T = 1073.15
 julia>p = 1e5
 julia>gasphase_in, moles_all, eq_molefracs  = equilibrate(T,p, thermo_obj, mole_fracs, gasphase)        
 ```
-Instead of passing the species list and the mole fractions separately, you may pass a Dictionary of species names and the molefractions a described below
-
+Instead of passing the species list and the mole fractions separately, you may pass a Dictionary of species names and the molefractions a described below.
 
 ```julia
 julia>using IdealGas
