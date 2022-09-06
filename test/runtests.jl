@@ -10,11 +10,11 @@ using RxnHelperUtils
         lib_dir = "lib\\"
     end
     @testset "Testing ch4 reforming" begin         
-        retcode = equil("ch4/equil.xml", lib_dir)
+        retcode = equilibrate("ch4/equil.xml", lib_dir)
         @test retcode == Symbol("Success")
     end
     @testset "Testing RWGS" begin         
-        retcode = equil("rwgs/equil.xml", lib_dir)
+        retcode = equilibrate("rwgs/equil.xml", lib_dir)
         @test retcode == Symbol("Success")
     end
     @testset "Interface call-1" begin
