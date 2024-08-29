@@ -62,11 +62,21 @@ function equilibrate(input_file::AbstractString, lib_dir::AbstractString)
     gasphase_in, moles_all, molefracs  =  equilibrate(T, p, thermo_obj, mole_fracs, gasphase)
 
 
+    eq_stream = open(output_file(input_file,"ch_equil.csv"),"w")
+    write_csv(eq_stream, ["Species", "moles", "molefracs"])
+
     println("\nEquilibrium composition @ T= $T K and p=$p Pa\n")
     println("Species \t moles \t\t molefraction")
     for k in eachindex(gasphase_in)
-        @printf("%10s \t %.4e \t %.4e\n", gasphase_in[k], moles_all[k], molefracs[k])        
+        
+        @printf("%10s \t %.4e \t %.4e\n", gasphase_in[k], moles_all[k], molefracs[k])
+        write_csv(eq_stream, [gasphase_in[k], moles_all[k], molefracs[k]])
     end
+
+    close(eq_stream)
+    #create csv output for the output
+
+    
 
     return Symbol("Success")
     

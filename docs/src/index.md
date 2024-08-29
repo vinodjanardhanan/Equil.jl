@@ -28,7 +28,7 @@ In order to calculate the equilibrium composition based on input file, do the fo
 On the Julia REPL 
 ```julia
 julia>using Equil
-julia>equil("equil.xml","../lib/")
+julia>equilibrate("equil.xml","../lib/")
 ```
 
 ## Input file
@@ -52,7 +52,9 @@ The meaning of different tags is specified below.
 - <p>: initial pressure in Pa
 
 ## Output
-The code generates only screen output. An example output is shown below.
+The code generates screen output as well as a CSV file (ch_equil.csv). The *ch_equil.csv* file will
+be located in the same directory where the input xml file is located.
+An example output is shown below.
 
 ```
 Inititial condition:
@@ -104,6 +106,7 @@ julia>T = 1073.15
 julia>p = 1e5
 julia>gasphase_in, moles_all, eq_molefracs  = equilibrate(T,p, thermo_obj, species_comp)                
 ```
+The *ch_equil.csv* file will not be generated for call from the REPL or for an interface call.
 
 ## Input file download
 The xml input file and the *lib* directory containig other required input files may be downloaded from [here](https://github.com/vinodjanardhanan/Equil.jl/tree/main/test).
