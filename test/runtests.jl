@@ -9,6 +9,10 @@ using RxnHelperUtils
     elseif Sys.iswindows()
         lib_dir = "lib\\"
     end
+    # @testset "Testing ch3oh reforming" begin         
+    #     retcode = equilibrate("ch3oh/equil.xml", lib_dir)
+    #     @test retcode == Symbol("Success")
+    # end
     @testset "Testing ch4 reforming" begin         
         retcode = equilibrate("ch4/equil.xml", lib_dir)
         @test retcode == Symbol("Success")
@@ -24,7 +28,7 @@ using RxnHelperUtils
         thermo_obj = create_thermo(gasphase, thermo_file)        
         T = 1073.15
         p = 1e5
-        gasphase_in, moles_all, eq_molefracs  = equilibrate(T,p, thermo_obj, mole_fracs, gasphase)        
+        gasphase_in, moles_in, moles_all, eq_molefracs  = equilibrate(T,p, thermo_obj, mole_fracs, gasphase)         
         @test eq_molefracs != mole_fracs
     end
     @testset "Interface call-2" begin
@@ -33,7 +37,7 @@ using RxnHelperUtils
         thermo_obj = create_thermo(collect(keys(species_comp)), thermo_file)        
         T = 1073.15
         p = 1e5
-        gasphase_in, moles_all, eq_molefracs  = equilibrate(T,p, thermo_obj, species_comp)                
+        gasphase_in, moles_in, moles_all, eq_molefracs  = equilibrate(T,p, thermo_obj, species_comp)                
         @test eq_molefracs != collect(values(species_comp))
     end
 end

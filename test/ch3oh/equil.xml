@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<equil>
+	<gasphase>CH3OH CH4 H2 CO CO2 H2O O2 N2 </gasphase>
+	<!--molefractions>CH4=0.6, CO2=0.2, H2O=0.1, N2=0.1</molefractions-->
+	<molefractions>CH3OH=1.0, CO2=0.0, H2O=0.0, N2=0.0</molefractions>
+	<T>298.15</T>
+	<p>1e5</p>
+</equil>

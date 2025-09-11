@@ -92,7 +92,7 @@ julia>thermo_file = get_path(lib_dir, "therm.dat")
 julia>thermo_obj = create_thermo(gasphase, thermo_file)        
 julia>T = 1073.15
 julia>p = 1e5
-julia>gasphase_in, moles_all, eq_molefracs  = equilibrate(T,p, thermo_obj, mole_fracs, gasphase)        
+julia>gasphase_in, moles_in, moles_final, eq_molefracs  = equilibrate(T,p, thermo_obj, mole_fracs, gasphase)        
 ```
 Instead of passing the species list and the mole fractions separately, you may pass a Dictionary of species names and the molefractions a described below.
 
@@ -104,7 +104,7 @@ julia>thermo_file = get_path(lib_dir, "therm.dat")
 julia>thermo_obj = create_thermo(collect(keys(species_comp)), thermo_file)        
 julia>T = 1073.15
 julia>p = 1e5
-julia>gasphase_in, moles_all, eq_molefracs  = equilibrate(T,p, thermo_obj, species_comp)                
+julia>gasphase_in, moles_in, moles_final, eq_molefracs  = equilibrate(T,p, thermo_obj, species_comp)                
 ```
 The *ch_equil.csv* file will not be generated for call from the REPL or for an interface call.
 

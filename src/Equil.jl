@@ -176,7 +176,7 @@ function equilibrate(T, p, thermo_obj, mole_fracs, gasphase)
     gasphase_in = copy(gasphase)
     append!(gasphase_in,inert_species)
     
-    return gasphase_in, moles_all, molefracs  
+    return gasphase_in, moles_in, moles_all, molefracs  
     
 end
 
