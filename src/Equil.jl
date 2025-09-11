@@ -59,7 +59,7 @@ function equilibrate(input_file::AbstractString, lib_dir::AbstractString)
         @printf("%10s \t %.4e \t %.4e \n", gasphase[k], moles[k], mole_fracs[k])
     end
 
-    gasphase_in, moles_all, molefracs  =  equilibrate(T, p, thermo_obj, mole_fracs, gasphase)
+    gasphase_in, moles_in, moles_all, molefracs  =  equilibrate(T, p, thermo_obj, mole_fracs, gasphase)
 
 
     eq_stream = open(output_file(input_file,"ch_equil.csv"),"w")

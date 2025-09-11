@@ -9,10 +9,10 @@ using RxnHelperUtils
     elseif Sys.iswindows()
         lib_dir = "lib\\"
     end
-    # @testset "Testing ch3oh reforming" begin         
-    #     retcode = equilibrate("ch3oh/equil.xml", lib_dir)
-    #     @test retcode == Symbol("Success")
-    # end
+    @testset "Testing ch3oh reforming" begin         
+        retcode = equilibrate("ch3oh/equil.xml", lib_dir)
+        @test retcode == Symbol("Success")
+    end
     @testset "Testing ch4 reforming" begin         
         retcode = equilibrate("ch4/equil.xml", lib_dir)
         @test retcode == Symbol("Success")
