@@ -4,5 +4,5 @@
 	<!--molefractions>CH4=0.6, CO2=0.2, H2O=0.1, N2=0.1</molefractions-->
 	<molefractions>CH4=0.6, CO2=0.2, H2O=0.1, N2=0.1</molefractions>
 	<T>1073.15</T>
-	<p>1e5</p>
+	<p>5e5</p>
 </equil>

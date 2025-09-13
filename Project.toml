@@ -1,22 +1,22 @@
 name = "Equil"
 uuid = "3c2bf3bc-2bd9-4d6d-b474-66378cb6c97e"
 authors = ["Vinod Janardhanan"]
-version = "0.1.5"
+version = "0.1.6"
 
 [deps]
 IdealGas = "7aa10a8e-8b87-4952-8d6b-aae44b8b139e"
 LightXML = "9c8b4983-aa76-5018-a973-4c85ecc9e179"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+NLsolve = "2774e3e8-f4cf-5e23-947b-6d7e65073b56"
+NonlinearSolve = "8913a72c-1f9b-4ce2-8d82-65094dcecaec"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
-Roots = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
-RowEchelon = "af85af4c-bcd5-5d23-b03a-a909639aa875"
 RxnHelperUtils = "58b8660e-aa37-4837-a287-8893ee0015f8"
 
 [compat]
 IdealGas = "0.2.3"
 LightXML = "0.9.2"
-Roots = "2.2.10"
-RowEchelon = "0.2.1"
+NLsolve = "4.5.1"
+NonlinearSolve = "4.10.0"
 RxnHelperUtils = "1.0.3"
 julia = "1.9.1"
 
