@@ -107,33 +107,46 @@ function equilibrate(T, p, thermo_obj, mole_fracs, gasphase)
 
     n_total = 1.0
     moles = n_total .* mole_fracs
-    
+
+    # --- Gibbs free energies (in J/mol) ---
     H_all = IdealGas.H_all(thermo_obj,T)
     S_all = IdealGas.S_all(thermo_obj,T)
     G_all = H_all - T*S_all        
-
     G_all_by_RT = G_all ./ (R*T)
 
-    
+    # println("g/RT values = ", G_all_by_RT)
 
-    # Find the elements in the system 
-    elements = Array{String,1}()
+    # --- Collect elements ---
+    elements = String[]
     for i in thermo_obj.thermo_all
-       append!(elements,collect(keys(i.composition)))
+        append!(elements, collect(keys(i.composition)))
     end
     unique!(elements)
 
+    # element totals (b_j)
     elements_vector = zeros(length(elements))
     for i in thermo_obj.thermo_all
         for (k,v) in i.composition            
             j = get_index(String(k),elements)            
-            elements_vector[j] += v* moles[get_index(i.name,gasphase)]
+            elements_vector[j] += v * moles[get_index(i.name,gasphase)]
         end
     end
+    # println("Element totals b = ", elements_vector)
 
-    q_species = (p_std/p) * exp.(-G_all_by_RT)
-    
-    #Formula coefficient matrix 
+    # --- q_species construction ---
+    p0 = 101325.0    
+    q_species = similar(G_all_by_RT)
+    for (i, sp) in enumerate(thermo_obj.thermo_all)
+        is_gas = sp.name in gasphase
+        if is_gas
+            q_species[i] = n_total * (p0/p) * exp(-G_all_by_RT[i])
+        else
+            q_species[i] = n_total * exp(-G_all_by_RT[i])
+        end
+    end
+    # println("q_species = ", q_species)
+
+    # --- Formula coefficient matrix (species × elements) ---
     ns = length(gasphase)
     ne = length(elements)
     B = zeros(Float64, ns, ne)
@@ -143,11 +156,9 @@ function equilibrate(T, p, thermo_obj, mole_fracs, gasphase)
             B[i,j] = v
         end
     end
-    
-    # Species moles 
-    λ0 = zeros(length(elements))
-    # spelpt =  ones(length(thermo_obj.thermo_all))
-    
+
+    # --- Nonlinear system in λ ---
+    λ0 = zeros(ne)
     params = (
         B = B,
         b = elements_vector,
@@ -158,21 +169,15 @@ function equilibrate(T, p, thermo_obj, mole_fracs, gasphase)
     )
 
     function residual!(du, λ, p)
-        B = p[:B]
-        b = p[:b]
-        thermo_obj = p[:thermo_obj]
-        q_species = p[:q_species]
-        elements = p[:elements]
-        gasphase = p[:gasphase]
+        B, b, thermo_obj, q_species, elements, gasphase =
+            p[:B], p[:b], p[:thermo_obj], p[:q_species], p[:elements], p[:gasphase]
 
-        # spelpt: same type as q_species (so it can hold Duals during AD)
-        spelpt = similar(q_species, eltype(λ))
+        spelpt = similar(q_species, eltype(λ)) # species mole vector
 
-
-        # compute n_i = q_i * exp(sum_j a_ij * λ_j)
+        # n_i = q_i * exp(Σ_j a_ij λ_j)
         for sp in thermo_obj.thermo_all
-            eλ = zero(eltype(λ))   # AD-safe accumulator
-            for (k, v) in sp.composition
+            eλ = zero(eltype(λ))
+            for (k,v) in sp.composition
                 idx = get_index(String(k), elements)
                 eλ += v * λ[idx]
             end
@@ -180,20 +185,27 @@ function equilibrate(T, p, thermo_obj, mole_fracs, gasphase)
             spelpt[sp_index] = q_species[sp_index] * exp(eλ)
         end
 
-        # element residuals: B' * n - b  (B is species × elements)
-        du .= B' * spelpt .- b
+        du .= B' * spelpt .- b  # element residuals
 
         return nothing
-
     end
 
     prob = NonlinearProblem(residual!, λ0, params)
     sol = solve(prob, NewtonRaphson())
 
-    λ_final = Array(sol.u)   # convert to concrete Float64 array
+    λ_final = Array(sol.u)
     # println("Lagrange multipliers = ", λ_final)
+
+    # --- Back-calculate equilibrium moles ---
     n_equil = [ q_species[i] * exp(sum(B[i,j] * λ_final[j] for j in 1:ne)) for i in 1:ns ]
     mole_frac_final = n_equil ./ sum(n_equil)
+    # println("Species moles = ", n_equil)
+    # println("Total moles = ", sum(n_equil))
+    # println("Final mole fractions = ", mole_frac_final)
+
+    # # --- Diagnostic check ---
+    # println("Check B' * n_equil = ", B' * n_equil, " vs b = ", elements_vector)
+
     return gasphase, moles, n_equil, mole_frac_final
 end
 
