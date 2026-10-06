@@ -71,13 +71,13 @@ Species 	 moles 		 molefraction
 Equilibrium composition @ T= 1073.15 K and p=100000.0 Pa
 
 Species          moles           molefraction
-       CH4       3.3912e+00      1.8973e-01
-       CO2       1.2649e-02      7.0766e-04
-       H2O       1.6324e-02      9.1329e-04
-        CO       5.5621e+00      3.1118e-01
-        O2       3.2984e-23      1.8454e-24
-        H2       7.7709e+00      4.3476e-01
-        N2       1.1207e+00      6.2703e-02
+       CH4 	 3.0537e-01 	 1.9214e-01
+        H2 	 6.8625e-01 	 4.3180e-01
+        CO 	 4.9229e-01 	 3.0976e-01
+       CO2 	 2.3459e-03 	 1.4761e-03
+       H2O 	 3.0208e-03 	 1.9007e-03
+        O2 	 8.7598e-24 	 5.5119e-24
+        N2 	 1.0000e-01 	 6.2922e-02
 ```        
 
 In certain cases, you may want to calculate the equilibrum composition from within another program.
