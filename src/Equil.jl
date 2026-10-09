@@ -18,7 +18,7 @@ export equilibrate
 # ============================================================
 
 """
-    equilibrate(input_file::AbstractString, lib_dir::AbstractString)
+    equilibrate(input_file::AbstractString, thermo_file::AbstractString)
 
 Calculate equilibrium composition from an XML input file.
 
@@ -28,9 +28,9 @@ The XML file specifies:
     - gasphase species
     - initial mole fractions
 
-`therm.dat` path towards `therm.dat` including file namme.
+`thermo_file` is the path to the thermodynamic database file.
 """
-function equilibrate(input_file::AbstractString, therm_file::AbstractString)
+function equilibrate(input_file::AbstractString, thermo_file::AbstractString)
 
     # --------------------------------------------------------
     # Read XML file
@@ -41,18 +41,10 @@ function equilibrate(input_file::AbstractString, therm_file::AbstractString)
 
     gasphase = get_collection_from_xml(xmlroot, "gasphase")
 
-    thermo_file = therm_file
 
-    thermo_obj = IdealGas.create_thermo(
-        gasphase,
-        thermo_file
-    )
+    thermo_obj = IdealGas.create_thermo( gasphase, thermo_file )
 
-    mole_fracs = get_molefraction_from_xml(
-        xmlroot,
-        thermo_obj.molwt,
-        gasphase
-    )
+    mole_fracs = get_molefraction_from_xml( xmlroot, thermo_obj.molwt, gasphase )
 
     local T = get_value_from_xml(xmlroot, "T")
     local p = get_value_from_xml(xmlroot, "p")
@@ -65,7 +57,7 @@ function equilibrate(input_file::AbstractString, therm_file::AbstractString)
     gasphase,
     moles,
     n_equil,
-    mole_frac_final = equilibrate(T, p, thermo_obj, mole_fracs, gasphase)
+    mole_frac_final = equilibrate( T, p, thermo_obj, mole_fracs, gasphase )
 
 
     # --------------------------------------------------------
@@ -73,30 +65,30 @@ function equilibrate(input_file::AbstractString, therm_file::AbstractString)
     # --------------------------------------------------------
 
     println("\nInitial condition:\n")
+
     println("Species \t moles \t\t molefraction")
+
     for k in eachindex(gasphase)
-        @printf("%10s \t %.4e \t %.4e \n", gasphase[k], moles[k], mole_fracs[k] )
+
+        @printf( "%10s \t %.4e \t %.4e \n", gasphase[k], moles[k], mole_fracs[k] )
+
     end
 
 
     # --------------------------------------------------------
     # Write equilibrium results
     # --------------------------------------------------------
-
     eq_stream = open( output_file(input_file, "ch_equil.csv"), "w")
 
     write_csv( eq_stream, ["Species", "moles", "molefracs"] )
-
-
-    println("\nEquilibrium composition @ T= $T K and p=$p Pa\n")
+    println( "\nEquilibrium composition @ T= $T K and p=$p Pa\n" )
     println("Species \t moles \t\t molefraction")
+
     for k in eachindex(gasphase)
-
         @printf( "%10s \t %.4e \t %.4e\n", gasphase[k], n_equil[k], mole_frac_final[k] )
-
-        write_csv( eq_stream, [gasphase[k], n_equil[k], mole_frac_final[k] ])
-
+        write_csv(eq_stream, [gasphase[k], n_equil[k], mole_frac_final[k] ] )
     end
+
     close(eq_stream)
     return Symbol("Success")
 
@@ -108,7 +100,12 @@ end
 # ============================================================
 
 """
-    equilibrate( T::Number, p::Number, thermo_obj, species_comp::Dict{String,Number} )
+    equilibrate(
+        T::Float64,
+        p::Float64,
+        thermo_obj,
+        species_comp::Dict{String,Float64}
+    )
 
 Calculate equilibrium composition from a dictionary:
 
@@ -117,11 +114,11 @@ Calculate equilibrium composition from a dictionary:
         "O2"  => 0.5
     )
 """
-function equilibrate(T::Number, p::Number, thermo_obj, species_comp::Dict{String, <:Number} )
+function equilibrate( T::Float64, p::Float64,  thermo_obj, species_comp::Dict{String,Float64})
 
     gasphase = collect(keys(species_comp))
     molefracs = collect(values(species_comp))
-    gasphase, moles, n_equil, mole_frac_final = equilibrate( T, p, thermo_obj, molefracs, gasphase )
+    gasphase, moles, n_equil, mole_frac_final = equilibrate( T, p,thermo_obj, molefracs, gasphase )
     return ( gasphase, moles, n_equil, mole_frac_final )
 
 end
@@ -132,7 +129,13 @@ end
 # ============================================================
 
 """
-    equilibrate( T, p, thermo_obj, mole_fracs, gasphase)
+    equilibrate(
+        T,
+        p,
+        thermo_obj,
+        mole_fracs,
+        gasphase
+    )
 
 Calculate equilibrium composition using Gibbs free-energy
 minimization subject to elemental conservation.
@@ -151,16 +154,14 @@ and the nonlinear equations are
 
 where `b` contains the initial elemental inventories.
 """
-function equilibrate( T::Number, p::Number, thermo_obj, mole_fracs, gasphase )
+function equilibrate( T,p, thermo_obj,  mole_fracs, gasphase )
 
     # ========================================================
     # Basic information
     # ========================================================
 
     n_total = 1.0
-
     ns = length(gasphase)
-
     moles = n_total .* mole_fracs
 
 
@@ -211,7 +212,7 @@ function equilibrate( T::Number, p::Number, thermo_obj, mole_fracs, gasphase )
     # Thermodynamic properties
     # ========================================================
 
-    H_all = IdealGas.H_all(thermo_obj, T)
+    H_all = IdealGas.H_all( thermo_obj, T )
     S_all = IdealGas.S_all( thermo_obj, T )
     G_all = H_all .- T .* S_all
 
@@ -272,12 +273,14 @@ function equilibrate( T::Number, p::Number, thermo_obj, mole_fracs, gasphase )
     # ========================================================
 
     B = zeros(Float64, ns, ne)
+
     for i in 1:ns
         sp = thermo_species[i]
         for (element, amount) in sp.composition
             j = get_index( String(element), elements )
             B[i, j] = amount
         end
+
     end
 
 
@@ -325,6 +328,8 @@ function equilibrate( T::Number, p::Number, thermo_obj, mole_fracs, gasphase )
     # ========================================================
 
     λ0 = zeros(Float64, ne)
+
+
     params = ( B = B, b = b, q_species = q_species )
 
 
@@ -356,7 +361,6 @@ function equilibrate( T::Number, p::Number, thermo_obj, mole_fracs, gasphase )
         # ----------------------------------------------------
 
         du .= B' * n .- b
-
         return nothing
 
     end
@@ -372,7 +376,7 @@ function equilibrate( T::Number, p::Number, thermo_obj, mole_fracs, gasphase )
     # Solve
     # ========================================================
 
-    sol = solve( prob, NewtonRaphson() )
+    sol = solve( prob, TrustRegion(); abstol = 1e-10, reltol = 1e-10, maxiters = 1000 )
 
 
     # ========================================================
@@ -382,7 +386,6 @@ function equilibrate( T::Number, p::Number, thermo_obj, mole_fracs, gasphase )
     if !SciMLBase.successful_retcode(sol.retcode)
         println( "\nWARNING: Equilibrium solver did not converge." )
         println( "retcode = ", sol.retcode )
-
     end
 
 
@@ -404,6 +407,7 @@ function equilibrate( T::Number, p::Number, thermo_obj, mole_fracs, gasphase )
             exponent += B[i, j] * λ_final[j]
         end
         n_equil[i] = q_species[i] * exp(exponent)
+
     end
 
 
@@ -412,15 +416,25 @@ function equilibrate( T::Number, p::Number, thermo_obj, mole_fracs, gasphase )
     # ========================================================
 
     mole_frac_final = n_equil ./ sum(n_equil)
+
+
     # ========================================================
     # Final elemental balance check
     # ========================================================
 
-    final_element_balance = B' * n_equil
-    final_balance_error = final_element_balance .- b
-    println("\nEquilibrium diagnostics:")
-    println( "Maximum elemental balance error = ", maximum(abs.(final_balance_error)) )
+    final_element_balance =
+        B' * n_equil
 
+    final_balance_error =
+        final_element_balance .- b
+
+    if (abs.(final_balance_error) .> 1e-10) |> any
+        println( "\nWARNING: Final elemental balance is not zero." )
+        println( "B' * n_equil = ", final_element_balance )
+        println( "b            = ", b )
+        println( "error        = ", final_balance_error )
+    end
+    
 
     # Uncomment for detailed diagnostics:
     #

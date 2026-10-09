@@ -28,7 +28,7 @@ In order to calculate the equilibrium composition based on input file, do the fo
 On the Julia REPL 
 ```julia
 julia>using Equil
-julia>equilibrate("equil.xml","../lib/")
+julia>equilibrate("equil.xml","../lib/therm.dat")
 ```
 
 ## Input file
